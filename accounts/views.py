@@ -79,3 +79,17 @@ class SignUpView(APIView):
         except Exception as e:
             return JsonResponse({"message": f"{e!r}"}, status=500)
 
+
+@method_decorator(csrf_protect, name="dispatch")
+class CheckLoggedIn(APIView):
+    authentication_class = [authentication.SessionAuthentication]
+    permission_classes = [permissions.AllowAny]
+
+    @staticmethod
+    def get(request):
+        req_user = request.user.username
+        if not req_user:
+            return JsonResponse({"user": None, "message": "No logged in user found"})
+        user = User.objects.get(username=req_user)
+        user_serializer = UserSerializer(user)
+        return JsonResponse({"user": user_serializer.data})
