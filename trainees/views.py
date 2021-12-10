@@ -8,7 +8,7 @@ from .serializers import WeightMeasurementSerializer
 
 @method_decorator(csrf_protect, name="dispatch")
 class WeightMeasurementList(generics.ListCreateAPIView, WeightMeasurementPermission):
-    permission_classes = [WeightMeasurementPermission]
+    permission_classes = [permissions.IsAuthenticated, WeightMeasurementPermission]
     serializer_class = WeightMeasurementSerializer
 
     def get_queryset(self):
@@ -17,7 +17,7 @@ class WeightMeasurementList(generics.ListCreateAPIView, WeightMeasurementPermiss
 
 
 class WeightMeasurementDetail(generics.RetrieveUpdateDestroyAPIView, WeightMeasurementPermission):
-    permission_classes = [WeightMeasurementPermission]
+    permission_classes = [permissions.IsAuthenticated, WeightMeasurementPermission]
     serializer_class = WeightMeasurementSerializer
 
     def get_queryset(self):
