@@ -17,6 +17,10 @@ class Trainee(models.Model):
     def name(self):
         return self.user.username
 
+    @property
+    def all_measurements(self):
+        return self.all_trainee_measurements.all()
+
 
 class WeightMeasurement(models.Model):
     trainee = models.ForeignKey(
