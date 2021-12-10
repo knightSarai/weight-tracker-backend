@@ -31,6 +31,7 @@ class WeightMeasurement(models.Model):
     UOM = models.CharField('Unit Of Measurement', max_length=10, default='kg')
     created_at = models.DateTimeField('Created at', auto_now_add=True, editable=False)
     updated_at = models.DateTimeField('Updated at', auto_now=True)
+    user_input_date = models.DateTimeField('User Measurement Date', null=True)
     value = models.CharField('value', max_length=255, null=False)
 
     def __str__(self):
