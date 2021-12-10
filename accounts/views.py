@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 
@@ -54,3 +55,27 @@ class LogoutViw(APIView):
             return JsonResponse({"success": "User logged out successfully"})
         except Exception as e:
             return JsonResponse({"error": f"User logged out error {e!r}"})
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class SignUpView(APIView):
+    def post(self, request):
+        try:
+            data = self.request.data
+            username = data.get("username")
+            email = data.get("email")
+            password = data.get("password")
+            password_confirm = data.get("passwordConfirm")
+
+            if password != password_confirm:
+                print(password)
+                print(password_confirm)
+                return JsonResponse({"error: ": "Passwords don't match"}, status=500)
+
+            User.objects.create_user(username=username, email=email, password=password)
+
+            return JsonResponse({"message": "User created in successfully", })
+
+        except Exception as e:
+            return JsonResponse({"message": f"{e!r}"}, status=500)
+
