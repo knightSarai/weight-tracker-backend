@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Trainee
 
-# Register your models here.
+
+@admin.register(Trainee)
+class TraineeAdmin(admin.ModelAdmin):
+    pass
