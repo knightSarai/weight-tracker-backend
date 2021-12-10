@@ -1,7 +1,8 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 
 from accounts.serializers import UserSerializer
@@ -9,7 +10,8 @@ from accounts.serializers import UserSerializer
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class GetCSRFToken(APIView):
-    def get(self, request):
+    @staticmethod
+    def get(request):
         return JsonResponse({'success': 'CSRF cookie set'})
 
 
@@ -38,3 +40,17 @@ class LoginView(APIView):
 
         except Exception as e:
             return JsonResponse({"message": f"{e!r}"})
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class LogoutViw(APIView):
+    authentication_class = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @staticmethod
+    def get(request):
+        try:
+            logout(request)
+            return JsonResponse({"success": "User logged out successfully"})
+        except Exception as e:
+            return JsonResponse({"error": f"User logged out error {e!r}"})
