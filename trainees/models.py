@@ -7,7 +7,10 @@ class Trainee(models.Model):
         User, related_name='trainee', on_delete=models.CASCADE
     )
     trainer = models.ForeignKey(
-        'trainers.Trainer', related_name='all_trainees', on_delete=models.DO_NOTHING
+        'trainers.Trainer',
+        related_name='all_trainees',
+        on_delete=models.DO_NOTHING,
+        default=1
     )
 
     def __str__(self):

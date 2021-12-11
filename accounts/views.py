@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
@@ -7,6 +8,7 @@ from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 
 from accounts.serializers import UserSerializer
+from trainees.models import Trainee
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -68,11 +70,11 @@ class SignUpView(APIView):
             password_confirm = data.get("passwordConfirm")
 
             if password != password_confirm:
-                print(password)
-                print(password_confirm)
                 return JsonResponse({"error: ": "Passwords don't match"}, status=500)
 
-            User.objects.create_user(username=username, email=email, password=password)
+            with transaction.atomic():
+                user = User.objects.create_user(username=username, email=email, password=password)
+                Trainee.objects.create(user=user)
 
             return JsonResponse({"message": "User created in successfully", })
 
