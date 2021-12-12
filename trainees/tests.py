@@ -69,7 +69,7 @@ class MeasurementsTest(APITestCase):
         url = reverse('trainees:measurementdetail', kwargs={'pk': 1})
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_owner_update_measurement_detail(self):
         """Test that the measurements detail update view will return a 200,
@@ -83,4 +83,4 @@ class MeasurementsTest(APITestCase):
         response = self.client.put(url, {'trainee': test_user.trainee.pk, 'value': '90'})
         json_response = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(json_response.get('value'), '90')
+        self.assertEqual(json_response.get("measurement").get('value'), '90')
