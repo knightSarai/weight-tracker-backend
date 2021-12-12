@@ -27,18 +27,20 @@ class LoginView(APIView):
             password = data.get("password")
 
             if username is None or password is None:
-                return JsonResponse({"error: ": "Username and Password is needed"})
+                return JsonResponse({"message": "Username and Password is needed"})
 
             user = authenticate(username=username, password=password)
 
             if not user:
-                return JsonResponse({"error:": "User does not exist"})
+                return JsonResponse({"message": "User does not exist"})
 
             login(request, user)
             user_serializer = UserSerializer(user)
+            trainee_id = user.trainee.id
             return JsonResponse({
                 "message": "User logged in successfully",
-                "user": user_serializer.data
+                "user": user_serializer.data,
+                "trainee_id": trainee_id
             })
 
         except Exception as e:
@@ -54,9 +56,9 @@ class LogoutViw(APIView):
     def get(request):
         try:
             logout(request)
-            return JsonResponse({"success": "User logged out successfully"})
+            return JsonResponse({"message": "User logged out successfully"})
         except Exception as e:
-            return JsonResponse({"error": f"User logged out error {e!r}"})
+            return JsonResponse({"message": f"User logged out error {e!r}"})
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -69,8 +71,11 @@ class SignUpView(APIView):
             password = data.get("password")
             password_confirm = data.get("passwordConfirm")
 
+            if not username or not email or not password or not password_confirm:
+                return JsonResponse({"message": "All fields are required"}, status=500)
+
             if password != password_confirm:
-                return JsonResponse({"error: ": "Passwords don't match"}, status=500)
+                return JsonResponse({"message": "Passwords don't match"}, status=500)
 
             with transaction.atomic():
                 user = User.objects.create_user(username=username, email=email, password=password)
@@ -91,7 +96,8 @@ class CheckLoggedIn(APIView):
     def get(request):
         req_user = request.user.username
         if not req_user:
-            return JsonResponse({"user": None, "message": "No logged in user found"})
+            return JsonResponse({"user": None, "message": "No logged in user found"}, status=500)
         user = User.objects.get(username=req_user)
         user_serializer = UserSerializer(user)
-        return JsonResponse({"user": user_serializer.data})
+        trainee_id = user.trainee.id
+        return JsonResponse({"user": user_serializer.data, "trainee_id": trainee_id})
