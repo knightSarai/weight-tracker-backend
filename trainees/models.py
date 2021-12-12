@@ -26,6 +26,9 @@ class Trainee(models.Model):
 
 
 class WeightMeasurement(models.Model):
+    class Meta:
+        ordering = ['-user_input_date']
+
     trainee = models.ForeignKey(
         'trainees.Trainee',
         related_name='all_trainee_measurements',
