@@ -27,12 +27,12 @@ class LoginView(APIView):
             password = data.get("password")
 
             if username is None or password is None:
-                return JsonResponse({"message": "Username and Password is needed"})
+                return JsonResponse({"message": "Username and Password is needed"}, status=500)
 
             user = authenticate(username=username, password=password)
 
             if not user:
-                return JsonResponse({"message": "User does not exist"})
+                return JsonResponse({"message": "User does not exist"}, status=500)
 
             login(request, user)
             user_serializer = UserSerializer(user)
@@ -44,7 +44,7 @@ class LoginView(APIView):
             })
 
         except Exception as e:
-            return JsonResponse({"message": f"{e!r}"})
+            return JsonResponse({"message": f"{e!r}"}, status=500)
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -58,7 +58,7 @@ class LogoutViw(APIView):
             logout(request)
             return JsonResponse({"message": "User logged out successfully"})
         except Exception as e:
-            return JsonResponse({"message": f"User logged out error {e!r}"})
+            return JsonResponse({"message": f"User logged out error {e!r}"}, status=500)
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -81,7 +81,7 @@ class SignUpView(APIView):
                 user = User.objects.create_user(username=username, email=email, password=password)
                 Trainee.objects.create(user=user)
 
-            return JsonResponse({"message": "User created in successfully", })
+            return JsonResponse({"message": "User created in successfully"})
 
         except Exception as e:
             return JsonResponse({"message": f"{e!r}"}, status=500)
