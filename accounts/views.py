@@ -96,7 +96,7 @@ class CheckLoggedIn(APIView):
     def get(request):
         req_user = request.user.username
         if not req_user:
-            return JsonResponse({"user": None, "message": "No logged in user found"}, status=500)
+            return JsonResponse({"message": "No logged in user found"}, status=500)
         user = User.objects.get(username=req_user)
         user_serializer = UserSerializer(user)
         trainee_id = user.trainee.id
