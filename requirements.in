@@ -6,3 +6,5 @@ django-cors-headers
 autopep8
 pylint
 pylint-django
+djangorestframework-simplejwt
+pytest
