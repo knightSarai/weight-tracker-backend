@@ -1,14 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-from django.db import transaction
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from rest_framework import authentication, permissions
+from rest_framework import authentication, permissions, generics
 from rest_framework.views import APIView
 
-from accounts.serializers import UserSerializer
-from trainees.models import Trainee
+from accounts.models import User
+from accounts.serializers import UserSerializer, RegisterUserSerializer
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -61,30 +59,37 @@ class LogoutViw(APIView):
             return JsonResponse({"message": f"User logged out error {e!r}"}, status=500)
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
-class SignUpView(APIView):
-    def post(self, request):
-        try:
-            data = self.request.data
-            username = data.get("username")
-            email = data.get("email")
-            password = data.get("password")
-            password_confirm = data.get("passwordConfirm")
+class SignUpView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = RegisterUserSerializer
 
-            if not username or not email or not password or not password_confirm:
-                return JsonResponse({"message": "All fields are required"}, status=500)
 
-            if password != password_confirm:
-                return JsonResponse({"message": "Passwords don't match"}, status=500)
 
-            with transaction.atomic():
-                user = User.objects.create_user(username=username, email=email, password=password)
-                Trainee.objects.create(user=user)
-
-            return JsonResponse({"message": "User created in successfully"})
-
-        except Exception as e:
-            return JsonResponse({"message": f"{e!r}"}, status=500)
+# @method_decorator(ensure_csrf_cookie, name="dispatch")
+# class SignUpView(APIView):
+#     def post(self, request):
+#         try:
+#             data = self.request.data
+#             username = data.get("username")
+#             email = data.get("email")
+#             password = data.get("password")
+#             password_confirm = data.get("passwordConfirm")
+#
+#             if not username or not email or not password or not password_confirm:
+#                 return JsonResponse({"message": "All fields are required"}, status=500)
+#
+#             if password != password_confirm:
+#                 return JsonResponse({"message": "Passwords don't match"}, status=500)
+#
+#             with transaction.atomic():
+#                 user = User.objects.create_user(username=username, email=email, password=password)
+#                 Trainee.objects.create(user=user)
+#
+#             return JsonResponse({"message": "User created in successfully"})
+#
+#         except Exception as e:
+#             return JsonResponse({"message": f"{e!r}"}, status=500)
 
 
 @method_decorator(csrf_protect, name="dispatch")

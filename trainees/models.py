@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Trainee(models.Model):
     user = models.OneToOneField(
-        User, related_name='trainee', on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, related_name='trainee', on_delete=models.CASCADE
     )
     trainer = models.ForeignKey(
         'trainers.Trainer',
