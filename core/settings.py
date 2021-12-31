@@ -120,6 +120,8 @@ REST_FRAMEWORK = {
     ]
 }
 
+AUTH_USER_MODEL = 'accounts.User'
+
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
