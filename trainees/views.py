@@ -24,7 +24,11 @@ class WeightMeasurementList(APIView):
     @staticmethod
     def get(request):
         user = request.user
-        return JsonResponse(WeightMeasurementSerializer(user.trainee.all_measurements, many=True).data, safe=False)
+
+        if hasattr(user, 'trainee'):
+            return JsonResponse(WeightMeasurementSerializer(user.trainee.all_measurements, many=True).data, safe=False)
+
+        return JsonResponse({'error': 'User is not a trainee'}, status=403)
 
     def post(self, request):
         try:
