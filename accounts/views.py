@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from rest_framework import authentication, permissions, generics
+from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User
 from accounts.serializers import UserSerializer, RegisterUserSerializer
@@ -64,6 +66,18 @@ class SignUpView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterUserSerializer
 
+
+class BlacklistTokenView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    @staticmethod
+    def post(request):
+        try:
+            refresh_token = request.data.get('refresh_token')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception as e:
+            return Response({'message': f'{e!r}'}, status=400)
 
 
 # @method_decorator(ensure_csrf_cookie, name="dispatch")
