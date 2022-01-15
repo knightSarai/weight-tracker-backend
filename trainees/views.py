@@ -18,7 +18,6 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class WeightMeasurementList(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     permission_classes = [permissions.IsAuthenticated, WeightMeasurementPermission]
 
     @staticmethod

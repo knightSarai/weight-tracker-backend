@@ -6,9 +6,10 @@ from rest_framework import authentication, permissions, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from accounts.models import User
-from accounts.serializers import UserSerializer, RegisterUserSerializer
+from accounts.serializers import UserSerializer, RegisterUserSerializer, CustomTokenObtainPairSerializer
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -18,33 +19,8 @@ class GetCSRFToken(APIView):
         return JsonResponse({'success': 'CSRF cookie set'})
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
-class LoginView(APIView):
-    def post(self, request):
-        try:
-            data = self.request.data
-            username = data.get("username")
-            password = data.get("password")
-
-            if username is None or password is None:
-                return JsonResponse({"message": "Username and Password is needed"}, status=500)
-
-            user = authenticate(username=username, password=password)
-
-            if not user:
-                return JsonResponse({"message": "User does not exist"}, status=500)
-
-            login(request, user)
-            user_serializer = UserSerializer(user)
-            trainee_id = user.trainee.id
-            return JsonResponse({
-                "message": "User logged in successfully",
-                "user": user_serializer.data,
-                "trainee_id": trainee_id
-            })
-
-        except Exception as e:
-            return JsonResponse({"message": f"{e!r}"}, status=500)
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -106,10 +82,7 @@ class BlacklistTokenView(APIView):
 #             return JsonResponse({"message": f"{e!r}"}, status=500)
 
 
-@method_decorator(csrf_protect, name="dispatch")
 class CheckLoggedIn(APIView):
-    authentication_class = [authentication.SessionAuthentication]
-    permission_classes = [permissions.AllowAny]
 
     @staticmethod
     def get(request):
